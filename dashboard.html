@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - LoudFat</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="logo-small">
+                        <img src="./public/logo.png" alt="CloudFat" class="header-logo">
+                    </div>
+                    <nav class="nav-tabs">
+                        
+                    </nav>
+                </div>
+                <button id="logoutBtn" class="btn btn-outline">
+                    <span class="icon">↗</span>
+                    Sair
+                </button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-section">
+                        <h1>Exportações cadastradas</h1>
+                        <p>Lista de todas as exportações de carne cadastradas...</p>
+                    </div>
+                    <button id="newExportBtn" class="btn btn-primary">
+                        <span class="icon">+</span>
+                        Nova Exportação
+                    </button>
+                </div>
+                <div class="card-content">
+                    <div class="table-container">
+                        <table class="exports-table">
+                            <thead>
+                                <tr>
+                                    <th>CLIENTE</th>
+                                    <th>TIPO DA CARNE</th>
+                                    <th>QUANTIDADE</th>
+                                    <th>PESO(KG)</th>
+                                    <th>ORIGEM → DESTINO</th>
+                                    <th>MOTORISTA</th>
+                                    <th>STATUS</th>
+                                    <th>AÇÕES</th>
+                                </tr>
+                            </thead>
+                            <tbody id="exportsTableBody">
+                                <!-- Dados serão inseridos via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="back-section">
+                <button id="backBtn" class="btn btn-primary">Voltar</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Nova Exportação -->
+    <div id="newExportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h2 id="modalTitle">Nova Exportação</h2>
+                    <p>Preencha os dados da exportação de carne</p>
+                </div>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+
+            <div class="step-indicators">
+                <button class="step-btn active" data-step="1">Cliente & Produto</button>
+                <button class="step-btn" data-step="2">Transporte</button>
+                <button class="step-btn" data-step="3">Datas & Local</button>
+            </div>
+
+            <form id="exportForm">
+                <!-- Etapa 1 -->
+                <div class="step-content active" data-step="1">
+                    <div class="form-section">
+                        <div class="section-header">
+                            <span class="icon">📦</span>
+                            <h3>Informações do Cliente & produto</h3>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="cliente">Cliente *</label>
+                                <input type="text" id="cliente" placeholder="Nome do cliente ou empresa" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="tipoCarne">Tipos de carnes *</label>
+                                <select id="tipoCarne" required>
+                                    <option value="">Selecione o tipo de corte</option>
+                                    <option value="bovina">Bovina</option>
+                                    <option value="suina">Suína</option>
+                                    <option value="aves">Aves</option>
+                                    <option value="ovina">Ovina</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="quantidade">Quantidade (unidades) *</label>
+                                <input type="number" id="quantidade" placeholder="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="peso">Peso total (kg) *</label>
+                                <input type="number" id="peso" placeholder="0" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Etapa 2 -->
+                <div class="step-content" data-step="2">
+                    <div class="form-section">
+                        <div class="section-header">
+                            <span class="icon">🚛</span>
+                            <h3>Informações de Transporte</h3>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="motorista">Motorista *</label>
+                                <input type="text" id="motorista" placeholder="Nome do motorista" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="idadeMotorista">Idade do Motorista *</label>
+                                <input type="number" id="idadeMotorista" placeholder="Idade" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="placaCaminhao">Placa do caminhão *</label>
+                                <input type="text" id="placaCaminhao" placeholder="ABC-1234" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="temperatura">Temperatura de armazenamento *</label>
+                                <select id="temperatura" required>
+                                    <option value="">Selecione a temperatura</option>
+                                    <option value="congelado">Congelado (-18°C)</option>
+                                    <option value="refrigerado">Refrigerado (0°C a 4°C)</option>
+                                    <option value="ambiente">Temperatura ambiente</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Etapa 3 -->
+                <div class="step-content" data-step="3">
+                    <div class="form-section">
+                        <div class="section-header">
+                            <span class="icon">📅</span>
+                            <h3>Datas e Locais</h3>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="origem">Origem *</label>
+                                <input type="text" id="origem" placeholder="Cidade, Estado" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="destino">Destino *</label>
+                                <input type="text" id="destino" placeholder="Cidade, Estado, Bairro, Rua, CEP..." required>
+                            </div>
+                            <div class="form-group">
+                                <label for="dataColeta">Data de coleta *</label>
+                                <input type="date" id="dataColeta" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="dataEntrega">Data de entrega *</label>
+                                <input type="date" id="dataEntrega" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="dataValidade">Data de validade *</label>
+                                <input type="date" id="dataValidade" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" id="prevBtn" class="btn btn-secondary" style="display: none;">Anterior</button>
+                    <button type="button" id="nextBtn" class="btn btn-primary">Próximo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Confirmação -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content small">
+            <div class="modal-header">
+                <h2 id="confirmTitle">Registrar importação?</h2>
+                <button class="modal-close" id="closeConfirmModal">&times;</button>
+            </div>
+            <div class="modal-footer">
+                <button id="confirmYes" class="btn btn-success">SIM</button>
+                <button id="confirmNo" class="btn btn-danger">NÃO</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Relatório -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2>Média de Valores e Tempo</h2>
+                <button class="modal-close" id="closeReportModal">&times;</button>
+            </div>
+            <div class="report-content">
+                <div class="report-grid">
+                    <div class="report-item">
+                        <div class="report-icon fuel">⛽</div>
+                        <div class="report-info">
+                            <p class="report-label">Gasto com Combustível</p>
+                            <p class="report-value">R$ 0.000,00</p>
+                            <p class="report-detail">litros consumidos</p>
+                        </div>
+                    </div>
+                    <div class="report-item">
+                        <div class="report-icon time">⏰</div>
+                        <div class="report-info">
+                            <p class="report-label">Tempo de Viagem</p>
+                            <p class="report-value">0 h 0 min</p>
+                            <p class="report-detail">Estimativa:</p>
+                        </div>
+                    </div>
+                    <div class="report-item">
+                        <div class="report-icon route">🛣️</div>
+                        <div class="report-info">
+                            <p class="report-label">Distância Percorrida</p>
+                            <p class="report-value">0 KM</p>
+                            <p class="report-detail">de 0 km total</p>
+                        </div>
+                    </div>
+                    <div class="report-item">
+                        <div class="report-icon cost">💰</div>
+                        <div class="report-info">
+                            <p class="report-label">Custo por KM</p>
+                            <p class="report-value">R$ 0,00</p>
+                            <p class="report-detail">Combustível por km</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Delete -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content small">
+            <div class="modal-header">
+                <h2>Tem certeza que vai apagar a exportação?</h2>
+                <button class="modal-close" id="closeDeleteModal">&times;</button>
+            </div>
+            <div class="modal-footer">
+                <button id="deleteYes" class="btn btn-success">SIM</button>
+                <button id="deleteNo" class="btn btn-danger">NÃO</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

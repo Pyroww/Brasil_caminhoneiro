@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes da Exportação - LoudFat</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        #map { height: 500px; width: 100%; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="logo-small">
+                        <img src="./public/logo.png" alt="CloudFat" class="header-logo">
+                    </div>
+                    <nav class="nav-tabs">
+                        
+                    </nav>
+                </div>
+                <button id="logoutBtn" class="btn btn-outline">
+                    <span class="icon">↗</span>
+                    Sair
+                </button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="export-header">
+                <div class="export-title">
+                    <h1 id="exportTitle">Exportação ID identificador: </h1>
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                        <span>Rota definida...</span>
+                    </div>
+                </div>
+                <button id="concludeBtn" class="btn btn-primary">Concluir exportação</button>
+            </div>
+
+            <!-- Mapa -->
+            <div class="card map-card">
+                <div class="map-placeholder">
+                    <div class="map-content">
+                        <div id="map"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="details-grid">
+                <div class="card">
+                    <div class="card-header-green">
+                        <h2>Dados do responsável</h2>
+                    </div>
+                    <div class="card-content">
+                        <div class="detail-item">
+                            <strong>Nome: </strong>
+                            <span id="responsavelNome"></span>
+                        </div>
+                        <div class="detail-item">
+                            <strong>Idade: </strong>
+                            <span id="responsavelIdade"></span>
+                        </div>
+                        <div class="detail-item">
+                            <strong>Placa do caminhão: </strong>
+                            <span id="responsavelPlaca"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header-green">
+                        <h2>Dados da exportação</h2>
+                    </div>
+                    <div class="card-content">
+                        <div class="export-details-grid">
+                            <div class="detail-item">
+                                <strong>Data início da entrega: </strong>
+                                <span id="dataInicio"></span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Quantidade de peças: </strong>
+                                <span id="quantidadePecas"></span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Data prevista da entrega: </strong>
+                                <span id="dataPrevista"></span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Tipo de corte: </strong>
+                                <span id="tipoCorte"></span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Placa do caminhão: </strong>
+                                <span id="placaCaminhao"></span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Data de validade: </strong>
+                                <span id="dataValidade"></span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Tipo de carga: </strong>
+                                <span id="tipoCarga"></span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>ID da entrega: </strong>
+                                <span id="idEntrega"></span>
+                            </div>
+                            <div class="detail-item full-width">
+                                <strong>Peso da carga: </strong>
+                                <span id="pesoCarga"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="back-section">
+                <button id="backBtn" class="btn btn-primary">Voltar</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+    const map = L.map('map').setView([-23.5505, -46.6333], 5);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+    }).addTo(map);
+
+    let routeLayer = null;
+
+    document.getElementById('calcular').addEventListener('click', async function() {
+        const origem = `${document.getElementById('cidadeOrigem').value}, ${document.getElementById('estadoOrigem').value}, ${document.getElementById('cepOrigem').value}`;
+        const destino = `${document.getElementById('cidadeDestino').value}, ${document.getElementById('estadoDestino').value}, ${document.getElementById('cepDestino').value}`;
+
+        const coordOrigem = await geocodificar(origem);
+        const coordDestino = await geocodificar(destino);
+
+        if (coordOrigem && coordDestino) {
+            calcularRota(coordOrigem, coordDestino);
+        } else {
+            alert("Não foi possível encontrar o endereço informado.");
+        }
+    });
+
+    async function geocodificar(endereco) {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(endereco)}`;
+
+        try {
+            const res = await fetch(url, { headers: { 'User-Agent': 'SeuSiteExportacao/1.0' } });
+            const data = await res.json();
+
+            if (data.length > 0) {
+                return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+            } else {
+                return null;
+            }
+        } catch (err) {
+            console.error("Erro na geocodificação:", err);
+            return null;
+        }
+    }
+
+    function calcularRota(origem, destino) {
+        const url = `https://router.project-osrm.org/route/v1/driving/${origem[1]},${origem[0]};${destino[1]},${destino[0]}?overview=full&geometries=geojson`;
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                if (data.routes.length > 0) {
+                    const route = data.routes[0].geometry;
+
+                    if (routeLayer) {
+                        map.removeLayer(routeLayer);
+                    }
+
+                    routeLayer = L.geoJSON(route).addTo(map);
+                    map.fitBounds(routeLayer.getBounds());
+                } else {
+                    alert("Não foi possível calcular a rota.");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Erro ao buscar a rota.");
+            });
+    }
+    </script>
+
+</body>
+</html>
