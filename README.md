@@ -2,7 +2,7 @@
 
 - Trata de um site capaz de registrar exprtações e mostrar a rota que tem de ser feita
 
-## Linguagebns usadas
+## Linguagens usadas
 - Typescript
 - CSS
 - JavaScript
